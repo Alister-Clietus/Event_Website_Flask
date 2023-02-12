@@ -1,6 +1,23 @@
-from flask import Flask,render_template
+from flask import Flask,render_template,request
+from flask_sqlalchemy import SQLAlchemy
+import mysql.connector
 
 app=Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:9495366284@localhost/datadb'
+db = SQLAlchemy(app)
+
+conn=mysql.connector.connect(host="localhost",user="root",password="9495366284",database="datadb")
+cursor=conn.cursor
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    First_Name = db.Column(db.String(80), unique=True, nullable=False)
+    Last_Name = db.Column(db.String(120), unique=True, nullable=False)
+    Address = db.Column(db.String(120), unique=True, nullable=False)
+    Gender = db.Column(db.String(120), unique=True, nullable=False)
+    DOB = db.Column(db.String(120), unique=True, nullable=False)
+    PINCODE = db.Column(db.Integer, unique=True, nullable=False)
+    Course = db.Column(db.String(120), unique=True, nullable=False)
+    Email_ID = db.Column(db.String(120), unique=True, nullable=False)
 
 @app.route('/')
 def home():
@@ -11,12 +28,38 @@ def about():
     return render_template('register.html')
 
 @app.route('/home')
-def about():
+def homep():
     return render_template('home.html')
 
 @app.route('/admin')
-def about():
+def admin():
     return render_template('admin.html')
+
+@app.route('/login_validation',methods=['POST'])
+def  login_validation():
+    email1 = request.form.get('email')
+    password = request.form.get('password')
+    print(email1)
+    print(password)
+    sql = User(username=email1,email=password)
+    db.session.add(sql)
+    db.session.commit()
+    return "User added successfully."
+@app.route('/add_user',methods=['POST'])
+def add_user():
+
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
+    address = request.form.get('address')
+    gender = request.form.get('gender')
+    dob = request.form.get('dob')
+    pincode = request.form.get('pincode')
+    course = request.form.get('course')
+    email = request.form.get('email')
+    sql = Users(First_Name=firstname, Last_Name=lastname, Address=address, Gender=gender, DOB=dob, PINCODE=pincode, Course=course, Email_ID=email)
+    db.session.add(sql)
+    db.session.commit()
+    return "User added successfully."
 
 
 if __name__=="__main__":
