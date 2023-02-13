@@ -8,6 +8,7 @@ db = SQLAlchemy(app)
 
 conn=mysql.connector.connect(host="localhost",user="root",password="9495366284",database="datadb")
 cursor=conn.cursor
+
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     First_Name = db.Column(db.String(80), unique=True, nullable=False)
@@ -41,10 +42,21 @@ def  login_validation():
     password = request.form.get('password')
     print(email1)
     print(password)
-    sql = User(username=email1,email=password)
-    db.session.add(sql)
-    db.session.commit()
-    return "User added successfully."
+    cursor = conn.cursor()
+
+    # Execute a query
+    cursor.execute("SELECT * FROM users where Email_ID='%s'" %(email1,))
+    # Fetch the results
+    results = cursor.fetchall()
+    print(results)
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    # Return the results
+    return str(results)
+
 @app.route('/add_user',methods=['POST'])
 def add_user():
 
@@ -59,7 +71,7 @@ def add_user():
     sql = Users(First_Name=firstname, Last_Name=lastname, Address=address, Gender=gender, DOB=dob, PINCODE=pincode, Course=course, Email_ID=email)
     db.session.add(sql)
     db.session.commit()
-    return "User added successfully."
+    return render_template('home.html')
 
 
 if __name__=="__main__":
